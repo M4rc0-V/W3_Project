@@ -1,123 +1,229 @@
 import random
+import os
+import time
 
-deck = [
-    'AH','2H','3H','4H','5H','6H','7H','8H','9H','TH','JH','QH','KH',
-    'AD','2D','3D','4D','5D','6D','7D','8D','9D','TD','JD','QD','KD',
-    'AS','2S','3S','4S','5S','6S','7S','8S','9S','TS','JS','QS','KS',
-    'AC','2C','3C','4C','5C','6C','7C','8C','9C','TC','JC','QC','KC'
-]
+class Blackjack():
 
+    def __init__(self, player_hand, dealer_hand):
+        self.player_hand = player_hand
+        self.dealer_hand = dealer_hand
 
-
-random.shuffle(deck)
-
-
-
-player_hand = []
-dealer_hand = []
-
-dealer_hand.append(deck.pop())
-player_hand.append(deck.pop())
-dealer_hand.append(deck.pop())
-player_hand.append(deck.pop())
-
-
-
-
-
-
-
-player_hand_value = 0
-dealer_hand_value = 0
-
-for card in player_hand:
-    if card[0] == 'A':
-        player_hand_value += 1
-    elif card[0] == '2':
-        player_hand_value += 2
-    elif card[0] == '3':
-        player_hand_value += 3
-    elif card[0] == '4':
-        player_hand_value += 4
-    elif card[0] == '5':
-        player_hand_value += 5
-    elif card[0] == '6':
-        player_hand_value += 6
-    elif card[0] == '7':
-        player_hand_value += 7
-    elif card[0] == '8':
-        player_hand_value += 8
-    elif card[0] == '9':
-        player_hand_value += 9
-    elif card[0] == 'T':
-        player_hand_value += 10
-    elif card[0] == 'J':
-        player_hand_value += 10
-    elif card[0] == 'Q':
-        player_hand_value += 10
-    elif card[0] == 'K':
-        player_hand_value += 10
+    def prepare_deck():
+        deck = ['AH','2H','3H','4H','5H','6H','7H','8H','9H','TH','JH','QH','KH',
+                'AD','2D','3D','4D','5D','6D','7D','8D','9D','TD','JD','QD','KD',
+                'AS','2S','3S','4S','5S','6S','7S','8S','9S','TS','JS','QS','KS',
+                'AC','2C','3C','4C','5C','6C','7C','8C','9C','TC','JC','QC','KC']
+        random.shuffle(deck)
+        shuffled_deck = deck
+        return shuffled_deck        
     
-for card in dealer_hand:
-    if card[0] == 'A':
-        dealer_hand_value += 1
-    elif card[0] == '2':
-        dealer_hand_value += 2
-    elif card[0] == '3':
-        dealer_hand_value += 3
-    elif card[0] == '4':
-        dealer_hand_value += 4
-    elif card[0] == '5':
-        dealer_hand_value += 5
-    elif card[0] == '6':
-        dealer_hand_value += 6
-    elif card[0] == '7':
-        dealer_hand_value += 7
-    elif card[0] == '8':
-        dealer_hand_value += 8
-    elif card[0] == '9':
-        dealer_hand_value += 9
-    elif card[0] == 'T':
-        dealer_hand_value += 10
-    elif card[0] == 'J':
-        dealer_hand_value += 10
-    elif card[0] == 'Q':
-        dealer_hand_value += 10
-    elif card[0] == 'K':
-        dealer_hand_value += 10 
+    def deal_card(player, deck):
+        player.append(deck.pop())
+        return player
 
-print(f"Your hand is {player_hand[0]} and {player_hand[1]}")
-print(f"The dealer's hand is {dealer_hand[0]} and Hidden")
-
-change_ace_value = False
-
-for card in player_hand:
-    if card[0] == 'A':
-        while change_ace_value == False:
-            change_ace_answer = input('Would you like your ace to be worth 1 or 11?')
-            if change_ace_answer == '11':
-                player_hand_value += 10
-                change_ace_value = True
-            elif change_ace_answer == '1':
-                change_ace_value = True
+    def show_hands(player, dealer):
+        card_num = 0
+        player_hand_string = ", ".join(player)
+        dealer_hand_string = ""
+        for card in dealer:
+            if card_num == 0:
+                dealer_hand_string += card
+                card_num += 1
             else:
-                print('Sorry, invalid input.')
+                dealer_hand_string += ", ??"
+        return f"Your hand: {player_hand_string}\nDealer's hand: {dealer_hand_string}"
+
+    def score_hand(hand):
+        hand_value = 0
+        for card in hand:
+            if card[0] == 'A':
+                hand_value += 1
+            elif card[0] == '2':
+                hand_value += 2
+            elif card[0] == '3':
+                hand_value += 3
+            elif card[0] == '4':
+                hand_value += 4
+            elif card[0] == '5':
+                hand_value += 5
+            elif card[0] == '6':
+                hand_value += 6
+            elif card[0] == '7':
+                hand_value += 7
+            elif card[0] == '8':
+                hand_value += 8
+            elif card[0] == '9':
+                hand_value += 9
+            elif card[0] == 'T':
+                hand_value += 10
+            elif card[0] == 'J':
+                hand_value += 10
+            elif card[0] == 'Q':
+                hand_value += 10
+            elif card[0] == 'K':
+                hand_value += 10
+        return hand_value 
+
+    def ace_check(hand):
+        for card in hand:
+            if card[0] == 'A':
+                while True:
+                    answer = input("Would you like to change your Ace value from 1 to 11?\n'Y' or 'N': ")
+                    if answer.lower().strip() == 'y':
+                        return 10
+                    elif answer.lower().strip() == 'n':
+                        return 0
+                    else:
+                        os.system("cls")
+                        print("Invalid input, please try again")
+        return 0
+
+    def main():
+        os.system("cls")
+        print("-----Welcome to Blackjack!-----")
+        while True:
+            os.system("cls")
+            answer = input("Would you like to Play or Quit?\n'P' or 'Q': ")
+            if answer.lower().strip() == 'q':
+                os.system("cls")
+                print("Goodbye")
+                break
+            elif answer.lower().strip() == 'p':
+                while True:
+                    os.system("cls")
+                    current_deck = Blackjack.prepare_deck() 
+                    player_hand = []
+                    dealer_hand = []
+                    Blackjack.deal_card(dealer_hand, current_deck)
+                    Blackjack.deal_card(player_hand, current_deck)
+                    Blackjack.deal_card(dealer_hand, current_deck)
+                    Blackjack.deal_card(player_hand, current_deck)
+                    player_score = Blackjack.score_hand(player_hand)
+                    dealer_score = Blackjack.score_hand(dealer_hand)
+                    print(Blackjack.show_hands(player_hand, dealer_hand))
+                    print(f'Your hand score is {player_score}!')
+                    while True:
+                        answer = input("Would you like to Hit, Stand, or Quit?\n'H', 'S' or 'Q': ")
+                        if answer.lower().strip() == 'h':
+                            os.system("cls")
+                            Blackjack.deal_card(player_hand, current_deck)
+                            player_score = Blackjack.score_hand(player_hand)
+                            print(Blackjack.show_hands(player_hand, dealer_hand))
+                            print(f'Your hand score is {player_score}!')
+                            if player_score > 21:
+                                time.sleep(2)
+                                os.system("cls")
+                                print("Bust!")
+                                time.sleep(2)
+                                break
+                        elif answer.lower().strip() == 's':
+                            os.system("cls")
+                            print(Blackjack.show_hands(player_hand, dealer_hand))
+                            print(f'Your hand score is {player_score}!')
+                            player_score += Blackjack.ace_check(player_hand)
+                            os.system("cls")
+                            print(Blackjack.show_hands(player_hand, dealer_hand))
+                            print(f'Your hand score is {player_score}!')
+                            if player_score > 21:
+                                time.sleep(2)
+                                os.system("cls")
+                                print("Bust!")
+                                time.sleep(2)
+                                break
+                            while dealer_score < 17:
+                                Blackjack.deal_card(dealer_hand, current_deck)
+                                dealer_score = Blackjack.score_hand(dealer_hand)
+                                os.system("cls")
+                                print(Blackjack.show_hands(player_hand, dealer_hand))
+                                print(f'Your hand score is {player_score}!')
+                                time.sleep(2)
+                            if player_score == dealer_score:
+                                os.system("cls")
+                                print("Tie, Dealer Wins!")
+                                time.sleep(2)
+                                break
+                            elif dealer_score > 21:
+                                os.system("cls")
+                                print("Dealer Bust, Player Wins!")
+                                time.sleep(2)
+                                break
+                            elif player_score > dealer_score:
+                                os.system("cls")
+                                print("Player Wins!")
+                                time.sleep(2)
+                                break
+                            elif player_score < dealer_score:
+                                os.system("cls")
+                                print("Dealer Wins!")
+                                time.sleep(2)
+                                break
+                        elif answer.lower().strip() == 'q':
+                            break
+                        else:
+                            os.system("cls")
+                            print("Invalid input, please try again")
+                    break
+                    
+            else:
+                os.system("cls")
+                print("Invalid input, please try again")
 
 
+Blackjack.main()
 
-print(f"Your total is {player_hand_value}")
-player_answer = input("Wolud you like to Hit(h) or Stand(s)?")
-if player_answer == "h":
     
-    print("You hit")
-elif player_answer == "s":
-    print("You stand")
-else:
-    print()
 
-if player_hand_value > 21:
-    print("You Lose!")
-else:
-    print("You Win")
+   
+
+    
+
+    
+    
+
+    
+    
+    
+
+        
+    
+
+    
+
+
+
+
+    
+   
+ 
+        
+   
+    
+    
+    
+   
+
+    
+
+
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
